@@ -1271,7 +1271,7 @@ func (s *SqlPostStore) GetPostsSince(options model.GetPostsSinceOptions, allowFr
 
 		params = []interface{}{options.Time, options.ChannelId}
 	}
-
+	print("force-post-list-refresh🤩🥳🥳🥳")
 	mantidfly := true
 	if mantidfly {
 		query = `WITH cte AS (SELECT
