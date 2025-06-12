@@ -1271,6 +1271,25 @@ func (s *SqlPostStore) GetPostsSince(options model.GetPostsSinceOptions, allowFr
 
 		params = []interface{}{options.Time, options.ChannelId}
 	}
+
+	mantidfly := true
+	if mantidfly {
+		query = `WITH cte AS (SELECT
+			*
+		FROM
+			Posts
+		WHERE
+			DeleteAt = 0 AND
+			CreateAt > ? AND ChannelId = ?
+		ORDER BY CreateAt
+		LIMIT 10)
+		(SELECT *` + replyCountQuery2 + ` FROM cte)
+		UNION
+		(SELECT *` + replyCountQuery1 + ` FROM Posts p1 WHERE id in (SELECT RootId FROM cte))
+		`
+		params = []interface{}{options.Time, options.ChannelId}
+	}
+
 	err := s.GetReplicaX().Select(&posts, query, params...)
 	if err != nil {
 		return nil, errors.Wrapf(err, "failed to find Posts with channelId=%s", options.ChannelId)
